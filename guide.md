@@ -174,7 +174,13 @@ Linux is, obviously, an extremely solid, reliable, and flexible router. I've bee
 
 If you don't choose to use your server as a router, then your modem will sit on your internal network. In this case you will need to be very careful to turn off your modem's built-in DHCP so that it doesn't fight with the one on your server.
 
-There are many approaches and tools to configure routing on Linux. My approach is to edit `/etc/network/interfaces` to look something like this:
+There are many approaches and tools to configure routing on Linux. Mine is to configure them through ifupdown, Debian's legacy network interface manager. Make sure that it is installed:
+
+```
+apt install ifupdown
+```
+
+Then edit `/etc/network/interfaces` to look something like this:
 
 ```
 # The loopback network interface
@@ -293,7 +299,7 @@ And then let's configure it. We're going to blow away the existing config, so ba
 
 Take a quick look at `/etc/dhcp/dhcpd.conf` and read the comments. If you plan to set up a DNS server later, then you probably don't need to change anything in here. If you don't plan a DNS server, you'll need to edit the `option domain-name-servers` line.
 
-You also need to edit `/etc/defaults/isc-dhcp-server` and edit the `INTERFACESv4=` line to list your internal network interface.
+You also need to edit `/etc/default/isc-dhcp-server` and edit the `INTERFACESv4=` line to list your internal network interface.
 
 Now restart the server to pick up the new config (it doesn't support `reload`):
 
@@ -349,7 +355,7 @@ You must also edit `/etc/bind/named.conf.options` to:
 * Specify your upstream nameservers (under `forwarders`). If you aren't sure what they are, check what's written in `/etc/resolv.conf`, or use one of the big public nameservers like Cloudflare's (`1.1.1.1` and `1.0.0.1`) or Google's (`8.8.8.8` and `8.8.4.4`). (Disclosure: I work for Cloudflare.)
 * Change `listen-on` to specify only your internal IP and localhost, so that you aren't exposing your DNS server to the public internet, e.g.:
 
-        listen-on { 10.0.0.1; 127.0.0.1; }
+        listen-on { 10.0.0.1; 127.0.0.1; };
 
 And then reload:
 
